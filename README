@@ -1,0 +1,178 @@
+# RAG Document Intelligence System
+
+A full-stack Retrieval-Augmented Generation (RAG) system that allows you to upload, index, and query documents locally with Ollama, ChromaDB, and Docker.
+
+This project combines a Node.js + Express backend, a React (Vite) frontend, and a Chroma vector store for efficient local document Q&A using the Llama 3.2 1B model via Ollama.
+
+### Badges
+
+[![Node.js](https://img.shields.io/badge/Node.js-20.x-green?logo=node.js)](https://nodejs.org/)
+[![React](https://img.shields.io/badge/React-18.x-blue?logo=react)](https://reactjs.org/)
+[![Docker](https://img.shields.io/badge/Docker-Compose-blue?logo=docker)](https://www.docker.com/)
+[![Ollama](https://img.shields.io/badge/Ollama-Local_Models-brightgreen)](https://ollama.com/)
+[![ChromaDB](https://img.shields.io/badge/ChromaDB-Vector_Store-purple)](https://www.trychroma.com/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+### Features
+
+-   Private and fully local setup using Ollama and Docker
+-   Upload and process PDF or text files for indexing
+-   Store and search vector embeddings using ChromaDB
+-   Retrieval-Augmented responses generated with Llama 3.2:1B
+-   Modern React + Vite frontend
+-   One-command deployment via Docker Compose
+
+## Architecture
+
+```text
+RAG/
+├── backend/       # Node.js + TypeScript server
+│   ├── routes/    # Upload, query, and documents
+│   └── services/  # Embedding + vector store logic
+│
+├── frontend/      # React (Vite) UI for document upload and chat
+│   └── src/       # Components and pages
+│
+├── docker-compose.yml
+└── README.md
+```
+
+## Tech Stack
+
+| Layer        | Technology                    |
+| :----------- | :---------------------------- |
+| **Frontend** | React (Vite)                  |
+| **Backend**  | Node.js + Express + TypeScript|
+| **Vector Store** | ChromaDB                      |
+| **LLM Runtime**  | Ollama (Llama 3.2 1B)         |
+| **Deployment** | Docker & Docker Compose       |
+
+## Setup
+
+### 1. Install Prerequisites
+
+-   Docker Desktop (must be running)
+-   Ollama installed locally
+
+Install Ollama:
+```bash
+brew install ollama
+ollama serve
+```
+
+Pull required models:
+```bash
+ollama pull nomic-embed-text
+ollama pull llama3.2:1b
+```
+
+### 2. Clone the Repository
+
+```bash
+git clone https://github.com/abdulazizmohammed/rag-document-ai.git
+cd rag-document-ai
+```
+
+### 3. Start Containers
+
+```bash
+docker compose up -d
+```
+
+View the running containers:
+```bash
+docker compose ps
+```
+
+**Access:**
+-   **Frontend** → `http://localhost:3000`
+-   **Backend** → `http://localhost:5001`
+-   **Chroma** → `http://localhost:8000`
+
+### 4. Upload Documents and Query
+
+1.  Open `http://localhost:3000` in your browser.
+2.  Upload a text or PDF document.
+3.  Wait until processing completes.
+4.  Ask any question about the document.
+
+## How It Works
+
+1.  The uploaded file is split into chunks.
+2.  Each chunk is converted into embeddings via Ollama’s `nomic-embed-text` model.
+3.  Embeddings are stored in a ChromaDB collection.
+4.  User queries are embedded and used to search for the most similar chunks in ChromaDB.
+5.  The retrieved chunks (context) and the original question are sent to the `llama3.2:1b` model to generate a contextual answer.
+
+### Example Flow
+
+```text
+User: "Summarize section 3"
+           │
+           ▼
+Backend retrieves context via ChromaDB
+           │
+           ▼
+Backend sends question + context to Llama3
+           │
+           ▼
+AI responds with a relevant summary
+```
+
+## Environment Variables
+
+The `docker-compose.yml` file already defines the required environment variables:
+
+```yaml
+OLLAMA_BASE_URL: http://host.docker.internal:11434
+CHROMA_URL: http://chroma:8000
+VITE_API_URL: http://localhost:5001/api
+```
+
+## Development (Manual)
+
+### Backend Local Run
+
+```bash
+cd backend
+npm install
+npm run dev
+```
+
+### Frontend Local Run
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+## Troubleshooting
+
+**Problem: “AI service not available”**
+
+Confirm Ollama is running on your host machine:
+```bash
+ollama serve
+```
+Verify the API connection:
+```bash
+curl http://localhost:11434/api/tags
+```
+
+**Problem: Blank Frontend**
+
+Rebuild the frontend Docker image without using the cache:
+```bash
+docker compose build --no-cache frontend
+```
+
+## License
+
+This project is released under the MIT License. You may freely use, modify, and share it for personal or educational work.
+
+## Acknowledgements
+
+-   [Ollama](https://ollama.com/) — Local LLM engine
+-   [Chroma](https://www.trychroma.com/) — Vector database
+-   [Docker](https://www.docker.com/) — Container platform

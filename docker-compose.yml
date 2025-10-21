@@ -1,0 +1,33 @@
+services:
+  chroma:
+    image: ghcr.io/chroma-core/chroma:latest
+    ports:
+      - "8000:8000"
+    volumes:
+      - chroma-data:/data
+
+  backend:
+    build:
+      context: ./backend
+    ports:
+      - "5001:5000"
+    environment:
+      - NODE_ENV=development
+      - OLLAMA_BASE_URL=http://host.docker.internal:11434
+      - CHROMA_URL=http://chroma:8000
+    depends_on:
+      - chroma
+    volumes:
+      - backend-uploads:/app/uploads
+
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - VITE_API_URL=http://localhost:5001/api
+
+volumes:
+  chroma-data:
+  backend-uploads:
